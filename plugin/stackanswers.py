@@ -75,9 +75,14 @@ def _output_preview_text(lines):
 def _generate_stack_answers_format(posts):
     response = []
     for post in posts:
+        answers = len(post["answers"])
+        # If there is no question, pass
+        if post["question"] == "":
+            continue
+
         question = "Q: " + post["question"]
         response.append(question)
-        response.append("%d Answer(s)\r" % len(post["answers"]))
+        response.append("%d Answer(s)\r" % answers)
         for answer in post["answers"]:
             response.append("=" * 80)
             response.append("www.stackoverflow.com" + answer[2] + " Upvotes: " + answer[1])
