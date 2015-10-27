@@ -15,6 +15,14 @@ Ex:
 
 ![Gif](/screenshots/example.gif)
 
+Dependencies
+------------
+```
+pip install requests
+pip install beautifulsoup4
+pip install lxml
+```
+
 TODO
 ----
 - Handle if no valid responses
