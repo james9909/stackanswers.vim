@@ -13,7 +13,7 @@ Ex:
 
 `:StackAnswers what is object oriented programming`
 
-![Screenshot](/screenshots/example.png)
+![Gif](/screenshots/example.gif)
 
 TODO
 ----
