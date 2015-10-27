@@ -56,8 +56,10 @@ function! s:StackAnswersOpen() "{{{
             else
                 if g:stack_right
                     exe "botright vsplit +buffer" . existing_answer_buffer
-                else
+                elseif g:stack_left
                     exe "topleft vsplit +buffer" . existing_answer_buffer
+                else
+                    exe "split +buffer" . existing_answer_buffer
                 endif
             endif
             call s:StackResizeBuffers(winnr())
