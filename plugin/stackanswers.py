@@ -20,15 +20,16 @@ def query_google(query, domain):
 def get_stack_overflow_post(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "lxml")
-    contents = soup.find("div", attrs={"class": "post-text"}).getText()
-    return contents
-
-
-def get_stack_overflow_answers(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "lxml")
     answers = soup.findAll("div", attrs={"class": "answer"})
-    response = []
+    post = {
+        "question": "",
+        "answers": []
+    }
+
+    for question_header in soup.findAll("div", attrs={"id": "question-header"}):
+        post["question"] = \
+            question_header.find("h1", attrs={"itemprop": "name"}).getText().encode("utf-8").replace("\n", "\r")
+
     for answer in answers:
         content = answer.find("div", attrs={"class": "post-text"}).getText().encode("utf-8").replace("\n", "\r")
         upvotes = answer.find("span", attrs={"class": "vote-count-post"}).getText().strip()
@@ -38,16 +39,16 @@ def get_stack_overflow_answers(url):
             author = author.find("a").text
         except:
             pass
-        response.append([content, upvotes, url, author])
-    return response
+        post["answers"].append([content, upvotes, url, author])
+    return post
 
 
-def fetch_mass_answers(query):
+def fetch_mass_posts(query):
     urls = query_google(query, "www.stackoverflow.com")
-    answers = []
+    posts = []
     for url in urls:
-        answers.append(get_stack_overflow_answers(url))
-    return answers
+        posts.append(get_stack_overflow_post(url))
+    return posts
 
 # StackAnswers output ---------------------------------------------------------
 
@@ -71,10 +72,13 @@ def _output_preview_text(lines):
     vim.command('setlocal nomodifiable')
 
 
-def _generate_stack_answers_format(answers):
+def _generate_stack_answers_format(posts):
     response = []
-    for website in answers:
-        for answer in website:
+    for post in posts:
+        question = "Q: " + post["question"]
+        response.append(question)
+        response.append("%d Answer(s)\r" % len(post["answers"]))
+        for answer in post["answers"]:
             response.append("=" * 80)
             response.append("www.stackoverflow.com" + answer[2] + " Upvotes: " + answer[1])
             response.append(answer[0])
@@ -83,6 +87,6 @@ def _generate_stack_answers_format(answers):
 
 def stackAnswers(query):
     query = vim.eval("a:2")
-    answers = fetch_mass_answers(query)
-    _output_preview_text(_generate_stack_answers_format(answers))
+    posts = fetch_mass_posts(query)
+    _output_preview_text(_generate_stack_answers_format(posts))
 
