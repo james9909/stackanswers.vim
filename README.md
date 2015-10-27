@@ -13,6 +13,8 @@ Ex:
 
 `:StackAnswers what is object oriented programming`
 
+![Screenshot](/screenshots/example.png)
+
 TODO
 ----
 - Handle if no valid responses
