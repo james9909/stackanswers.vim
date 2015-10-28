@@ -85,8 +85,8 @@ def _output_preview_text(lines):
     _goto_window_for_buffer_name('__Answers__')
     vim.command('setlocal modifiable')
     vim.current.buffer[:] = lines
-    vim.command('silent %s/\r/\n/g')
-    vim.command('silent %s/\%x00/\r/g')
+    vim.command('silent %s/\r/\n/ge')
+    vim.command('silent %s/\%x00/\r/ge')
     vim.command('setlocal nomodifiable')
 
 
