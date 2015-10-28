@@ -24,7 +24,7 @@ def is_valid_url(url):
 
 
 def parse_answer(answer):
-    content = answer.find("div", attrs={"class": "post-text"}).getText().encode("utf-8").replace("\n", "\r")
+    content = answer.find("div", attrs={"class": "post-text"}).getText()
     upvotes = answer.find("span", attrs={"class": "vote-count-post"}).getText().strip()
     url = answer.find("a", attrs={"class": "short-link"})["href"].strip()
     author = answer.find("div", attrs={"class": "user-details"})
@@ -45,7 +45,7 @@ def get_stack_overflow_post(url, _filter):
 
     for question_header in soup.findAll("div", attrs={"id": "question-header"}):
         post["question"] = \
-            question_header.find("h1", attrs={"itemprop": "name"}).getText().encode("utf-8").replace("\n", "\r")
+            question_header.find("h1", attrs={"itemprop": "name"}).getText()
 
     if _filter == "top":  # Get the top answer (may be an accepted answer)
         answers = [soup.find("div", attrs={"class": "answer"})]
@@ -84,6 +84,7 @@ def _goto_window_for_buffer_name(bn):
 def _output_preview_text(lines):
     _goto_window_for_buffer_name('__Answers__')
     vim.command('setlocal modifiable')
+    lines = [line.encode('utf-8').replace("\n", "\r") for line in lines]
     vim.current.buffer[:] = lines
     vim.command('silent %s/\r/\n/ge')
     vim.command('silent %s/\%x00/\r/ge')
