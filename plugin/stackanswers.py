@@ -11,10 +11,16 @@ def query_google(query, domain):
     urls = []
     for link in links:
         url = str(link.find("h3", attrs={"class": "r"}))
-        index = url.find("url")
+        index = url.find("url?q=http://")
         if index != -1:
-            urls.append(url[index+6:url.find("&")])
+            url = url[index+6:url.find("&")]
+            if is_valid_url(url):
+                urls.append(url)
     return urls
+
+
+def is_valid_url(url):
+    return ("stackoverflow" in url or "stackexchange" in url) and "/tagged/" not in url
 
 
 def parse_answer(answer):
