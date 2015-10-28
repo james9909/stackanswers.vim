@@ -13,6 +13,9 @@ endif "}}}
 if !exists('g:stack_right') "{{{
     let g:stack_right = 0
 endif "}}}
+if !exists('g:stack_filter') "{{{
+    let g:stack_filter = "top"
+endif "}}}
 
 " Slightly modified from Gundo
 let s:plugin_path = escape(expand('<sfile>:p:h'), '\')
@@ -87,7 +90,7 @@ endfunction "}}}
 function! s:StackAnswers(...) "{{{
     call s:StackAnswersOpen()
     exe 'pyfile ' . s:plugin_path . '/stackanswers.py'
-    python stackAnswers("a:2")
+    python stackAnswers("a:2", "g:stack_filter")
     " Go to top of file
     exe 'normal gg'
 endfunction "}}}

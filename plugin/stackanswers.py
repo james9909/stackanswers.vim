@@ -17,10 +17,21 @@ def query_google(query, domain):
     return urls
 
 
-def get_stack_overflow_post(url):
+def parse_answer(answer):
+    content = answer.find("div", attrs={"class": "post-text"}).getText().encode("utf-8").replace("\n", "\r")
+    upvotes = answer.find("span", attrs={"class": "vote-count-post"}).getText().strip()
+    url = answer.find("a", attrs={"class": "short-link"})["href"].strip()
+    author = answer.find("div", attrs={"class": "user-details"})
+    try:
+        author = author.find("a").text
+    except AttributeError:
+        author = ""
+    return [content, upvotes, url, author]
+
+
+def get_stack_overflow_post(url, _filter):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "lxml")
-    answers = soup.findAll("div", attrs={"class": "answer"})
     post = {
         "question": "",
         "answers": []
@@ -30,24 +41,25 @@ def get_stack_overflow_post(url):
         post["question"] = \
             question_header.find("h1", attrs={"itemprop": "name"}).getText().encode("utf-8").replace("\n", "\r")
 
+    if _filter == "top":  # Get the top answer (may be an accepted answer)
+        answers = [soup.find("div", attrs={"class": "answer"})]
+    elif _filter == "accepted":  # Get the accepted answer
+        answers = [soup.find("div", attrs={"class": "accepted-answer"})]
+    else:  # Get all answers
+        answers = soup.findAll("div", attrs={"class": "answer"})
+
     for answer in answers:
-        content = answer.find("div", attrs={"class": "post-text"}).getText().encode("utf-8").replace("\n", "\r")
-        upvotes = answer.find("span", attrs={"class": "vote-count-post"}).getText().strip()
-        url = answer.find("a", attrs={"class": "short-link"})["href"].strip()
-        author = answer.find("div", attrs={"class": "user-details"})
-        try:
-            author = author.find("a").text
-        except:
-            pass
-        post["answers"].append([content, upvotes, url, author])
+        if answer is None:
+            continue
+        post["answers"].append(parse_answer(answer))
     return post
 
 
-def fetch_mass_posts(query):
+def fetch_mass_posts(query, _filter):
     urls = query_google(query, "www.stackoverflow.com")
     posts = []
     for url in urls:
-        posts.append(get_stack_overflow_post(url))
+        posts.append(get_stack_overflow_post(url, _filter))
     return posts
 
 # StackAnswers output ---------------------------------------------------------
@@ -90,8 +102,9 @@ def _generate_stack_answers_format(posts):
     return response
 
 
-def stackAnswers(query):
+def stackAnswers(query, _filter):
     query = vim.eval("a:2")
-    posts = fetch_mass_posts(query)
+    _filter = vim.eval("g:stack_filter")
+    posts = fetch_mass_posts(query, _filter)
     _output_preview_text(_generate_stack_answers_format(posts))
 
