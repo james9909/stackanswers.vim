@@ -1,6 +1,9 @@
+import json
 import requests
 import vim
-from bs4 import BeautifulSoup
+
+API_KEY = "vYizAQxn)7tmkShJZyHqWQ(("
+
 
 def query_google(query, domain):
     search = "https://www.google.com/search?as_q="
@@ -19,54 +22,61 @@ def query_google(query, domain):
     return urls
 
 
-def is_valid_url(url):
-    return ("stackoverflow" in url or "stackexchange" in url) and "/tagged/" not in url
-
-
-def parse_answer(answer):
-    content = answer.find("div", attrs={"class": "post-text"}).getText()
-    upvotes = answer.find("span", attrs={"class": "vote-count-post"}).getText().strip()
-    url = answer.find("a", attrs={"class": "short-link"})["href"].strip()
-    author = answer.find("div", attrs={"class": "user-details"})
+def get_question_id(url):
     try:
-        author = author.find("a").text
-    except AttributeError:
-        author = ""
-    return [content, upvotes, url, author]
+        qid = int(url.split("/")[-2])
+    except:
+        qid = None
+    return qid
 
 
-def get_stack_overflow_post(url, _filter):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "lxml")
+def is_valid_url(url):
+    return "stackoverflow" in url and "/tagged/" not in url
+
+
+def get_question_data(qid):
+    response = requests.get("https://api.stackexchange.com/2.2/questions/%s/answers?order=&sort=votes&site=stackoverflow&key=%s&filter=!*K1kKw1QtFm(YMCQ" % (qid, API_KEY))
+    return json.loads(response.text)["items"]
+
+
+def parse_question_data(data, _filter):
     post = {
         "question": "",
         "answers": []
     }
-
-    for question_header in soup.findAll("div", attrs={"id": "question-header"}):
-        post["question"] = \
-            question_header.find("h1", attrs={"itemprop": "name"}).getText()
-
-    if _filter == "top":  # Get the top answer (may be an accepted answer)
-        answers = [soup.find("div", attrs={"class": "answer"})]
-    elif _filter == "accepted":  # Get the accepted answer
-        answers = [soup.find("div", attrs={"class": "accepted-answer"})]
-    else:  # Get all answers
-        answers = soup.findAll("div", attrs={"class": "answer"})
-
-    for answer in answers:
-        if answer is None:
-            continue
-        post["answers"].append(parse_answer(answer))
+    post["question"] = data[0]["title"]
+    del data[0]
+    for answer in data:
+        answer_data = parse_answer(answer)
+        if _filter == "accepted":
+            if answer_data[2]:
+                post["answers"].append(parse_answer(answer))
+        elif _filter == "top":
+            post["answers"].append(parse_answer(answer))
+            break
+        else:
+            post["answers"].append(parse_answer(answer))
     return post
 
 
-def fetch_mass_posts(query, _filter):
+def parse_answer(answer):
+    author = answer["owner"]["display_name"]
+    content = answer["body_markdown"]
+    is_accepted = answer["is_accepted"]
+    upvotes = answer["score"]
+    url = answer["share_link"]
+    return [content, url, is_accepted, upvotes, author]
+
+
+def fetch_mass_data(query, _filter):
     urls = query_google(query, "www.stackoverflow.com")
     posts = []
     for url in urls:
-        posts.append(get_stack_overflow_post(url, _filter))
+        qid = get_question_id(url)
+        data = get_question_data(qid)
+        posts.append(parse_question_data(data, _filter))
     return posts
+
 
 # StackAnswers output ---------------------------------------------------------
 
@@ -86,7 +96,7 @@ def _output_preview_text(lines):
     vim.command('setlocal modifiable')
     lines = [line.encode('utf-8').replace("\n", "\r") for line in lines]
     vim.current.buffer[:] = lines
-    vim.command('silent %s/\r/\n/ge')
+    vim.command('silent %s/\r\+/\n/ge')
     vim.command('silent %s/\%x00/\r/ge')
     vim.command('setlocal nomodifiable')
 
@@ -101,17 +111,16 @@ def _generate_stack_answers_format(posts):
 
         question = "Q: " + post["question"]
         response.append(question)
-        response.append("%d Answer(s)\r" % answers)
+        response.append("%d Answer(s)" % answers)
         for answer in post["answers"]:
             response.append("=" * 80)
-            response.append("www.stackoverflow.com" + answer[2] + " Upvotes: " + answer[1])
-            response.append(answer[0])
+            response.append(answer[1] + " Upvotes: " + str(answer[3]))
+            response.append(answer[0] + "\r")
     return response
 
 
 def stackAnswers(query, _filter):
     query = vim.eval("a:2")
     _filter = vim.eval("g:stack_filter")
-    posts = fetch_mass_posts(query, _filter)
-    _output_preview_text(_generate_stack_answers_format(posts))
-
+    data = fetch_mass_data(query, _filter)
+    _output_preview_text(_generate_stack_answers_format(data))
