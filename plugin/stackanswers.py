@@ -1,25 +1,20 @@
 import json
 import requests
 import vim
-from bs4 import BeautifulSoup
 
 API_KEY = "vYizAQxn)7tmkShJZyHqWQ(("
 
 
 def query_google(query, domain):
-    search = "https://www.google.com/search?as_q="
-    url = search + query + ":" + domain
+    search = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%s"
+    url = search % (query + ":" + domain)
     response = requests.get(url)
-    soup = BeautifulSoup(response.text, "lxml")
-    links = soup.findAll("li", attrs={"class": "g"})
+    data = json.loads(response.text)["responseData"]["results"]
     urls = []
-    for link in links:
-        url = str(link.find("h3", attrs={"class": "r"}))
-        index = url.find("url?q=http://")
-        if index != -1:
-            url = url[index+6:url.find("&")]
-            if is_valid_url(url):
-                urls.append(url)
+    for result in data:
+        url = result["url"]
+        if is_valid_url(url):
+            urls.append(url)
     return urls
 
 

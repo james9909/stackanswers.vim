@@ -15,10 +15,10 @@ Installation
 StackAnswers should work with any modern plugin manager for Vim, such as [NeoBundle](https://github.com/Shougo/neobundle.vim), [Pathogen](https://github.com/tpope/vim-pathogen), [Vim-Plug](https://github.com/junegunn/vim-plug/), or [Vundle](https://github.com/VundleVim/Vundle.vim).
 
 #### Requirements:
-StackAnswers uses a few external python modules to parse data. You can install them via:
+StackAnswers uses an external python module to parse data. You can install it via:
 ```
 sudo apt-get install pip
-sudo pip install requests beautifulsoup4 lxml
+sudo pip install requests
 ```
 #### Options
 It is possible to filter out the top answer, accepted answer, or not at all.
