@@ -1,8 +1,14 @@
+import re
 import json
 import requests
 import vim
 
 API_KEY = "vYizAQxn)7tmkShJZyHqWQ(("
+
+
+def strip_html(html):
+    pattern = re.compile(r'<.*?>')
+    return pattern.sub('', html)
 
 
 def query_google(query, domain):
@@ -31,7 +37,7 @@ def is_valid_url(url):
 
 
 def get_question_data(qid):
-    response = requests.get("https://api.stackexchange.com/2.2/questions/%s/answers?order=&sort=votes&site=stackoverflow&key=%s&filter=!*K1kKw1QtFm(YMCQ" % (qid, API_KEY))
+    response = requests.get("https://api.stackexchange.com/2.2/questions/%s/answers?order=&sort=votes&site=stackoverflow&key=%s&filter=!)Q2B_4mND07Uc*hKpm6.P0Q5" % (qid, API_KEY))
     return json.loads(response.text)["items"]
 
 
@@ -56,7 +62,7 @@ def parse_question_data(data, _filter):
 
 def parse_answer(answer):
     author = answer["owner"]["display_name"]
-    content = answer["body_markdown"]
+    content = answer["body"]
     is_accepted = answer["is_accepted"]
     upvotes = answer["score"]
     url = answer["share_link"]
@@ -110,7 +116,7 @@ def _generate_stack_answers_format(posts):
         for answer in post["answers"]:
             response.append("=" * 80)
             response.append(answer[1] + " Upvotes: " + str(answer[3]))
-            response.append(answer[0] + "\r")
+            response.append(strip_html(answer[0]) + "\r")
     return response
 
 
