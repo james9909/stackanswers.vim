@@ -1,6 +1,7 @@
 import json
 import requests
 import vim
+from bs4 import BeautifulSoup
 
 API_KEY = "vYizAQxn)7tmkShJZyHqWQ(("
 
@@ -9,6 +10,7 @@ def query_google(query, domain):
     search = "https://www.google.com/search?as_q="
     url = search + query + ":" + domain
     response = requests.get(url)
+    soup = BeautifulSoup(response.text, "lxml")
     links = soup.findAll("li", attrs={"class": "g"})
     urls = []
     for link in links:
