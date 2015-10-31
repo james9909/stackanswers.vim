@@ -41,7 +41,6 @@ def parse_question_data(data, _filter):
         "answers": []
     }
     post["question"] = data[0]["title"]
-    del data[0]
     for answer in data:
         answer_data = parse_answer(answer)
         if _filter == "accepted":
