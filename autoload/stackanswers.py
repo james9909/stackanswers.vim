@@ -2,6 +2,7 @@ import re
 import json
 import requests
 import vim
+import sys
 
 API_KEY = "vYizAQxn)7tmkShJZyHqWQ(("
 
@@ -14,7 +15,10 @@ def strip_html(html):
 def query_google(query, domain):
     search = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%s"
     url = search % (query + ":" + domain)
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except:
+        return None
     data = json.loads(response.text)["responseData"]["results"]
     urls = []
     for result in data:
@@ -73,6 +77,8 @@ def parse_answer(answer):
 
 def fetch_mass_data(query, _filter):
     urls = query_google(query, "www.stackoverflow.com")
+    if urls is None:
+        return None
     posts = []
     for url in urls:
         qid = get_question_id(url)
@@ -128,4 +134,7 @@ def stackAnswers(query, _filter):
     query = vim.eval("a:2")
     _filter = vim.eval("g:stack_filter")
     data = fetch_mass_data(query, _filter)
-    _output_preview_text(_generate_stack_answers_format(data))
+    if data is None:
+        _output_preview_text(["Not connected to the Internet"])
+    else:
+        _output_preview_text(_generate_stack_answers_format(data))
