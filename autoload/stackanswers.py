@@ -46,6 +46,8 @@ def parse_question_data(data, _filter):
         "question": "",
         "answers": []
     }
+    if len(data) == 0 or "title" not in data[0]:
+        return post
     post["question"] = data[0]["title"]
     for answer in data:
         answer_data = parse_answer(answer)
@@ -74,6 +76,8 @@ def fetch_mass_data(query, _filter):
     posts = []
     for url in urls:
         qid = get_question_id(url)
+        if not qid:
+            continue
         data = get_question_data(qid)
         posts.append(parse_question_data(data, _filter))
     return posts
