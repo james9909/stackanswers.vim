@@ -17,9 +17,9 @@ def query_google(query, domain):
     url = search % (query + ":" + domain)
     try:
         response = requests.get(url)
+        data = json.loads(response.text)["responseData"]["results"]
     except:
         return None
-    data = json.loads(response.text)["responseData"]["results"]
     urls = []
     for result in data:
         url = result["url"]
@@ -135,6 +135,6 @@ def stackAnswers(query, _filter):
     _filter = vim.eval("g:stack_filter")
     data = fetch_mass_data(query, _filter)
     if data is None:
-        _output_preview_text(["Not connected to the Internet"])
+        _output_preview_text(["Error fetching data...", "There are a few possibilities:", "1) You are not connected to the Internet", "2) You've been sending too many requests, and Google has temporarily blocked your ip"])
     else:
         _output_preview_text(_generate_stack_answers_format(data))
