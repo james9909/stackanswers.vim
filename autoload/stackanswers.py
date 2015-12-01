@@ -13,10 +13,13 @@ def strip_html(html):
 
 
 def query_google(query, domain):
-    search = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%s"
-    url = search % (query + ":" + domain)
+    payload = {
+        'v': '1.0',
+        'q': '%s:%s' % (query, domain)
+    }
+    url = "https://ajax.googleapis.com/ajax/services/search/web"
     try:
-        response = requests.get(url)
+        response = requests.get(url, params=payload)
         data = json.loads(response.text)["responseData"]["results"]
     except:
         return None
@@ -41,7 +44,14 @@ def is_valid_url(url):
 
 
 def get_question_data(qid):
-    response = requests.get("https://api.stackexchange.com/2.2/questions/%s/answers?order=&sort=votes&site=stackoverflow&key=%s&filter=!)Q2B_4mND07Uc*hKpm6.P0Q5" % (qid, API_KEY))
+    payload = {
+        'order': '',
+        'sort': 'votes',
+        'site': 'stackoverflow',
+        'key': API_KEY,
+        'filter': '!)Q2B_4mND07Uc*hKpm6.P0Q5'
+    }
+    response = requests.get("https://api.stackexchange.com/2.2/questions/%s/answers" % qid, params=payload)
     return json.loads(response.text)["items"]
 
 
