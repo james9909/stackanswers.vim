@@ -117,6 +117,8 @@ def _output_preview_text(lines):
     vim.command('setlocal modifiable')
     lines = [line.encode('utf-8').replace("\n", "\r") for line in lines]
     vim.current.buffer[:] = lines
+    # Ensure that the global flag is off by default
+    vim.command('setlocal nogdefault')
     vim.command('silent %s/\r\+/\n/ge')
     vim.command('silent %s/\%x00/\r/ge')
     vim.command('setlocal nomodifiable')
