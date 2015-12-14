@@ -119,8 +119,8 @@ def _output_preview_text(lines):
     vim.current.buffer[:] = lines
     # Ensure that the global flag is off by default
     vim.command('setlocal nogdefault')
-    vim.command('silent %s/\r\+/\n/ge')
-    vim.command('silent %s/\%x00/\r/ge')
+    # Replace 1-2 \r's with one.
+    vim.command('silent %s/\r\{1,2\}/\r/ge')
     vim.command('setlocal nomodifiable')
 
 
