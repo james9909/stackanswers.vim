@@ -2,7 +2,6 @@ import re
 import json
 import requests
 import vim
-import sys
 
 API_KEY = "vYizAQxn)7tmkShJZyHqWQ(("
 
@@ -51,7 +50,8 @@ def get_question_data(qid):
         'key': API_KEY,
         'filter': '!)Q2B_4mND07Uc*hKpm6.P0Q5'
     }
-    response = requests.get("https://api.stackexchange.com/2.2/questions/%s/answers" % qid, params=payload)
+    url = "https://api.stackexchange.com/2.2/questions/%s/answers"
+    response = requests.get(url % qid, params=payload)
     return json.loads(response.text)["items"]
 
 
@@ -145,6 +145,11 @@ def stackAnswers(query, _filter):
     _filter = vim.eval("g:stack_filter")
     data = fetch_mass_data(query, _filter)
     if data is None:
-        _output_preview_text(["Error fetching data...", "There are a few possibilities:", "1) You are not connected to the Internet", "2) You've been sending too many requests, and Google has temporarily blocked your ip"])
+        text = ["Error fetching data...",
+                "There are a few possibilities:",
+                "1) You are not connected to the Internet",
+                "2) Google has temporarily blocked your ip"
+                ]
+        _output_preview_text(text)
     else:
         _output_preview_text(_generate_stack_answers_format(data))
