@@ -1,7 +1,11 @@
 import re
 import json
 import requests
-import vim
+import sys
+try:
+    import vim
+except:
+    pass
 
 API_KEY = "vYizAQxn)7tmkShJZyHqWQ(("
 
@@ -142,7 +146,7 @@ def _generate_stack_answers_format(posts):
     return response
 
 
-def stackAnswers(query, _filter):
+def stackAnswersVim(query, _filter):
     query = vim.eval("a:2")
     _filter = vim.eval("g:stack_filter")
     data = fetch_mass_data(query, _filter)
@@ -155,3 +159,27 @@ def stackAnswers(query, _filter):
         _output_preview_text(text)
     else:
         _output_preview_text(_generate_stack_answers_format(data))
+
+
+def stackAnswersCI(query, _filter):
+    data = fetch_mass_data(query, _filter)
+    if data is None:
+        text = ["Error fetching data...",
+                "There are a few possibilities:",
+                "1) You are not connected to the Internet",
+                "2) Google has temporarily blocked your ip"
+                ]
+        return text
+    else:
+        formatted = _generate_stack_answers_format(data)
+        formatted = "\n".join(formatted)
+        formatted = formatted.replace("\r", "\n")
+        formatted = formatted.replace("\n\n", "\n")
+        return formatted
+
+if __name__ == "__main__":
+    args = sys.argv
+    if "--cli" in args:
+        _filter = args[2]
+        query = " ".join(args[3:])
+        print stackAnswersCI(query, _filter)
