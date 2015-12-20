@@ -88,10 +88,15 @@ function! s:StackResizeBuffers(backto) "{{{
 endfunction "}}}
 
 function! s:ClearBuffer(name) "{{{
-    call s:GoToWindowForBufferName(name)
-    setlocal modifiable
-    exe '%d'
-    setlocal nomodifiable
+    if bufwinnr(bufnr(a:name)) != -1
+        exe bufwinnr(bufnr(a:name)) . "wincmd w"
+        setlocal modifiable
+        exe '%d'
+        setlocal nomodifiable
+        return 1
+    else
+        return 0
+    endif
 endfunction "}}}
 
 function s:JobHandler(job_id, data, event) "{{{
@@ -127,7 +132,7 @@ endif "}}}
 function! stackanswers#StackAnswers(...) "{{{
     if has('nvim')
         call jobstart(['python', s:plugin_path . '/stackanswers.py', '--cli', g:stack_filter, a:2], extend({'shell': 'shell'}, s:callbacks))
-        call s:ClearBuffer('__Answers__')
+        call s:ClearBuffer("__Answers__")
     else
         call s:StackAnswersOpen()
         exe 'pyfile ' . s:plugin_path . '/stackanswers.py'
