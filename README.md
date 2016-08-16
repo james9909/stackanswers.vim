@@ -18,13 +18,8 @@ StackAnswers should work with any modern plugin manager for Vim, such as [NeoBun
 StackAnswers uses an external python module to parse data. You can install it via:
 ```
 sudo apt-get install pip
-sudo pip install requests
-```
-#### Options
-It is possible to filter out the top answer, accepted answer, or not at all.
-```Vim
-let g:stack_filter = "top"  # The top answer is often the accepted one.
-let g:stack_filter = "accepted"
+pip install requests
+pip install beautifulsoup4
 ```
 
 Contributing

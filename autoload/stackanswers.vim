@@ -13,9 +13,6 @@ endif "}}}
 if !exists('g:stack_right') "{{{
     let g:stack_right = 0
 endif "}}}
-if !exists('g:stack_filter') "{{{
-    let g:stack_filter = 'top'
-endif "}}}
 
 " Slightly modified from Gundo
 let s:plugin_path = escape(expand('<sfile>:p:h'), '\')
@@ -104,6 +101,7 @@ function s:JobHandler(job_id, data, event) "{{{
         let s:data = a:data
     elseif a:event ==? 'stderr'
         let s:data = 'Something went wrong!'
+        let s:data = a:data
     endif
 
     " Open buffer and make it modifiable
@@ -126,17 +124,18 @@ endfunction "}}}
 if has('nvim') "{{{
     let s:callbacks = {
         \ 'on_stdout': function('s:JobHandler'),
+        \ 'on_stderr': function('s:JobHandler'),
     \ }
 endif "}}}
 
 function! stackanswers#StackAnswers(...) "{{{
     if has('nvim')
-        call jobstart(['python', s:plugin_path . '/stackanswers.py', '--cli', g:stack_filter, a:2], extend({'shell': 'shell'}, s:callbacks))
+        call jobstart(['python', s:plugin_path . '/stackanswers.py', '--cli', a:2], extend({'shell': 'shell'}, s:callbacks))
         call s:ClearBuffer("__Answers__")
     else
         call s:StackAnswersOpen()
         exe 'pyfile ' . s:plugin_path . '/stackanswers.py'
-        python stackAnswersVim("a:2", "g:stack_filter")
+        python stackAnswersVim("a:2")
         " Go to top of file
         exe 'normal gg'
     endif
