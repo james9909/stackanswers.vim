@@ -42,7 +42,7 @@ def get_answers(url):
 
 
 def fetch_answers(query):
-    urls = query_google(query, "www.stackoverflow.com")
+    urls = query_google(query, "stackoverflow.com")
     if urls is None:
         return None
     answers = []
