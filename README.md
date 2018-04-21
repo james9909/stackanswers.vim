@@ -20,6 +20,7 @@ StackAnswers uses an external python module to parse data. You can install it vi
 sudo apt-get install pip
 pip install requests
 pip install beautifulsoup4
+pip install html5lib
 ```
 
 Contributing
