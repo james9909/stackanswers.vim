@@ -121,4 +121,4 @@ if __name__ == "__main__":
     args = sys.argv
     if "--cli" in args:
         query = " ".join(args[2:])
-        print stackAnswersCI(query)
+        print(stackAnswersCI(query))
