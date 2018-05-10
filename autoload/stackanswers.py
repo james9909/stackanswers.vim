@@ -47,7 +47,9 @@ def fetch_answers(query):
         return None
     answers = []
     for url in urls:
-        responses = get_answers(url)
+        if url.startswith("https"):
+            responses = get_answers(url)
+
         if responses:
             answers.append(responses)
 
