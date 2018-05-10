@@ -134,7 +134,14 @@ function! stackanswers#StackAnswers(...) "{{{
         call s:ClearBuffer("__Answers__")
     else
         call s:StackAnswersOpen()
-        exe 'pyfile ' . s:plugin_path . '/stackanswers.py'
+        if has("python")
+            exe 'pyfile ' . s:plugin_path . '/stackanswers.py'
+        elseif has("python3")
+            exe 'py3file ' . s:plugin_path . '/stackanswers.py'
+        else
+            return
+        endif
+
         python stackAnswersVim("a:2")
         " Go to top of file
         exe 'normal gg'
