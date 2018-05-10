@@ -17,7 +17,7 @@ def query_google(query, domain):
     url = "http://www.google.com/search?q=site:%s+%s" % (domain, query)
     urls = []
     response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html5lib")
+    soup = BeautifulSoup(response.text, "html.parser")
     questions = soup.findAll("h3", { "class": "r" })
     for question in questions:
         urls += [re.search("\?q=(.*?)&", item["href"]).group(1) for item in question.find_all("a", href=True)]
@@ -27,7 +27,7 @@ def query_google(query, domain):
 def get_answers(url):
     data = {}
     response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html5lib")
+    soup = BeautifulSoup(response.text, "html.parser")
 
     all_posts = soup.findAll("div", { "class": "post-text" })
     if len(all_posts) == 0:
